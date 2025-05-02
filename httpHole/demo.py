@@ -13,6 +13,12 @@ class RequestLoggerHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(b"Admin Page")
             return
+        elif self.path == "/robots.txt":
+            self.send_response(200)
+            self.send_header("Content-type", "text/plain")
+            self.end_headers()
+            self.wfile.write(b"User-agent: *\nDisallow: /private \nAllow: /\n\nSitemap: http://contoso.net/sitemap.xml")
+            return
         else:
             self.send_response(200)
             self.send_header("Content-type", "text/html")
