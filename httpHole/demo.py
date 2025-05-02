@@ -10,7 +10,7 @@ class RequestLoggerHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()
-        self.wfile.write(b"")  # Blank response
+        self.wfile.write(b"Server UP")  # Blank response
 
     def do_POST(self):
         # Log the request to a file
@@ -20,7 +20,7 @@ class RequestLoggerHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()
-        self.wfile.write(b"")  # Blank response
+        self.wfile.write(b"Server UP")  # Blank response
 
     def log_request_to_file(self):
         # Log the request details
