@@ -7,10 +7,17 @@ class RequestLoggerHandler(BaseHTTPRequestHandler):
         self.log_request_to_file()
 
         # Respond with a blank page
-        self.send_response(200)
-        self.send_header("Content-type", "text/html")
-        self.end_headers()
-        self.wfile.write(b"Server UP")  # Blank response
+        if self.path == "/admin":
+            self.send_response(200)
+            self.send_header("Content-type", "text/html")
+            self.end_headers()
+            self.wfile.write(b"Admin Page")
+            return
+        else:
+            self.send_response(200)
+            self.send_header("Content-type", "text/html")
+            self.end_headers()
+            self.wfile.write(b"Server UP")  # Blank response
 
     def do_POST(self):
         # Log the request to a file
