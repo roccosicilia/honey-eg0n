@@ -1,58 +1,60 @@
-from http.server import BaseHTTPRequestHandler, HTTPServer
+from http.server import HTTPServer, BaseHTTPRequestHandler
 import logging
 
-class RequestLoggerHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        # Log the request to a file
-        self.log_request_to_file()
+# Configure logging
+logging.basicConfig(filename="requests.log", level=logging.INFO, format="%(asctime)s - %(message)s")
 
-        # Respond with a blank page
-        if self.path == "/admin":
-            self.send_response(200)
-            self.send_header("Content-type", "text/html")
-            self.end_headers()
-            self.wfile.write(b"Admin Page")
-            return
-        elif self.path == "/robots.txt":
-            self.send_response(200)
-            self.send_header("Content-type", "text/plain")
-            self.end_headers()
-            self.wfile.write(b"User-agent: *\nDisallow: /private \nAllow: /\n\nSitemap: http://contoso.net/sitemap.xml")
-            return
-        else:
-            self.send_response(200)
-            self.send_header("Content-type", "text/html")
-            self.end_headers()
-            self.wfile.write(b"Server UP")  # Blank response
+def handle_request(request, client_address):
+    """
+    Handles incoming HTTP requests and logs them.
+    """
+    # Log the request details
+    logging.info(f"Request from {client_address[0]}:{client_address[1]}")
+    logging.info(f"Path: {request.path}")
+    logging.info(f"Headers:\n{request.headers}")
 
-    def do_POST(self):
-        # Log the request to a file
-        self.log_request_to_file()
+    # If there's a body (e.g., in POST requests), log it
+    content_length = request.headers.get('Content-Length')
+    if content_length:
+        body = request.rfile.read(int(content_length)).decode('utf-8')
+        logging.info(f"Body:\n{body}")
 
-        # Respond with a blank page
-        self.send_response(200)
-        self.send_header("Content-type", "text/html")
-        self.end_headers()
-        self.wfile.write(b"Server UP")  # Blank response
+    # Respond based on the path
+    if request.path == "/admin":
+        response = b"Admin Page"
+        content_type = "text/html"
+    elif request.path == "/robots.txt":
+        response = b"User-agent: *\nDisallow: /private \nAllow: /\n\nSitemap: http://contoso.net/sitemap.xml"
+        content_type = "text/plain"
+    else:
+        response = b"Server UP"
+        content_type = "text/html"
 
-    def log_request_to_file(self):
-        # Log the request details
-        logging.info(f"Request from {self.client_address[0]}:{self.client_address[1]}")
-        logging.info(f"Path: {self.path}")
-        logging.info(f"Headers:\n{self.headers}")
+    # Send the response
+    request.send_response(200)
+    request.send_header("Content-type", content_type)
+    request.end_headers()
+    request.wfile.write(response)
 
-        # If there's a body (e.g., in POST requests), log it
-        content_length = self.headers.get('Content-Length')
-        if content_length:
-            body = self.rfile.read(int(content_length)).decode('utf-8')
-            logging.info(f"Body:\n{body}")
+def run_server(host="0.0.0.0", port=80):
+    """
+    Starts the HTTP server and handles requests.
+    """
+    def handler(*args):
+        # Wrap the handler function to pass the request and client address
+        handle_request(*args)
 
-def run(server_class=HTTPServer, handler_class=RequestLoggerHandler, port=80):
-    logging.basicConfig(filename="requests.log", level=logging.INFO, format="%(asctime)s - %(message)s")
-    server_address = ("", port)
-    httpd = server_class(server_address, handler_class)
-    print(f"Starting HTTP server on port {port}...")
-    httpd.serve_forever()
+    # Create and start the HTTP server
+    server = HTTPServer((host, port), BaseHTTPRequestHandler)
+    print(f"Starting HTTP server on {host}:{port}...")
+    logging.info(f"HTTP server started on {host}:{port}")
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print("\nShutting down the server...")
+        logging.info("Server shut down.")
+    finally:
+        server.server_close()
 
 if __name__ == "__main__":
-    run()
+    run_server()
