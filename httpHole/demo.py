@@ -2,6 +2,16 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 import logging
 
 class RequestLoggerHandler(BaseHTTPRequestHandler):
+    def do_HEAD(self):
+        # Log the request to a file
+        self.log_request_to_file()
+
+        # Respond with a blank page
+        self.send_response(200)
+        self.send_header("Content-type", "text/html")
+        self.end_headers()
+        self.wfile.write(b"Are you a bot?")
+    
     def do_GET(self):
         # Log the request to a file
         self.log_request_to_file()
