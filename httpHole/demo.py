@@ -4,8 +4,6 @@ import logging
 class RequestLoggerHandler(BaseHTTPRequestHandler):
     def do_HEAD(self):
         # Log the request to a file
-        self.log_message("#"*50)
-        self.log_message("HEAD request received from %s:%s", self.client_address[0], self.client_address[1])
         self.log_request_to_file()
 
         # Respond with a blank page
@@ -48,7 +46,7 @@ class RequestLoggerHandler(BaseHTTPRequestHandler):
 
     def log_request_to_file(self):
         # Log the request details
-        logging.info(f"Request from {self.client_address[0]}:{self.client_address[1]}")
+        logging.info(f"{self.command} Request from {self.client_address[0]}:{self.client_address[1]}")
         logging.info(f"Path: {self.path}")
         logging.info(f"Headers:\n{self.headers}")
 
