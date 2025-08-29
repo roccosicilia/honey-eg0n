@@ -56,9 +56,9 @@ class RequestLoggerHandler(BaseHTTPRequestHandler):
             body = self.rfile.read(int(content_length)).decode('utf-8')
             logging.info(f"Body:\n{body}")
 
-def run(server_class=HTTPServer, handler_class=RequestLoggerHandler, port=80):
+def run(server_class=HTTPServer, handler_class=RequestLoggerHandler, port=8888):
     logging.basicConfig(filename="requests.log", level=logging.INFO, format="%(asctime)s - %(message)s")
-    server_address = ("", port)
+    server_address = ("127.0.0.1", port)
     httpd = server_class(server_address, handler_class)
     print(f"Starting HTTP server on port {port}...")
     httpd.serve_forever()
